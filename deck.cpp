@@ -41,6 +41,6 @@ void Deck::generate_image(std::string output_name){
     }
 
     deck_image.save("temp.png"); //I need to use a temporary png file because CImg doesn't seem to like saving jpgs.
-    convert_to_jpg("temp.png", output_name); //Using GDI+ to convert the temporary file.
+    convert_to_jpg("temp.png", output_name+".jpg"); //Using GDI+ to convert the temporary file.
     remove( "temp.png");
 }
