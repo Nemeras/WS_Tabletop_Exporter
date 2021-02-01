@@ -7,7 +7,7 @@
 			"command": "C:\\MinGW\\bin\\g++.exe",
 			"args": [
 				"-Wall",
-				//"-std=c++11",
+				"-std=gnu++11",
 				"-g", 
 				//"${file}",
 				"${workspaceFolder}\\*.cpp",

@@ -1,6 +1,5 @@
-#include "deck.hpp"
-#include "CImg.h"
 #include "convert.hpp"
+#include "deck.hpp"
 
 using namespace cimg_library; 
 
@@ -43,4 +42,50 @@ void Deck::generate_image(std::string output_name){
     deck_image.save("temp.png"); //I need to use a temporary png file because CImg doesn't seem to like saving jpgs.
     convert_to_jpg("temp.png", output_name+".jpg"); //Using GDI+ to convert the temporary file.
     remove( "temp.png");
+}
+
+void Deck::generate_json(std::string name){
+    std::string filename = name + ".json";
+    std::ofstream file(filename.c_str());
+    bool fst = true;
+    std::ifstream part1("part1.json");
+    file << part1.rdbuf();
+     part1.close();
+    file << '"' << "[";
+    for (auto &c : cards){
+        c.reference_slash();
+        if (!fst)
+            file << ",";
+        fst = false;
+        file << "\\\\\\" << '"' << c.get_reference() << "\\\\\\" << '"';
+    }
+    file << "]\\" << '"' << "\\r\\nserialInfoJSON = \\" << '"' << "{";
+
+    std::unordered_map<std::string,Card> card_map;
+        
+    for (auto &c : cards){
+        std::pair<std::string,Card> temp_card (c.get_reference(),c);
+        card_map.insert(temp_card);
+    }
+    fst = true;
+    for (auto &c : card_map){
+        if (fst != true)
+            file << ",";
+        fst = false;
+        Card card = c.second;
+        card.reference_slash();
+        card.effect_line_break();
+        file << "\\\\\\" << '"' << card.get_reference() << "\\\\\\" << '"' << ":{\\\\\\" << '"' << "Name\\\\\\" << '"' << ":\\\\\\" << '"' << card.get_name();
+        file << " [" << card.get_reference() << "][" << card.get_type() << "]\\\\\\" << '"' << ",\\\\\\" << '"' << "Description\\\\\\" << '"';
+        file << ":\\\\\\" << '"' << "Type: " << card.get_type() << "\\\\\\\\nTraits: " << card.get_traits() << " \\\\\\\\nP/S: " << card.get_power();
+        file << "P/" << card.get_soul() << "S " << '|' << '|' << " Lv/Co: " << card.get_level() << "/" << card.get_cost() << "\\\\\\\\nEffect: " << card.get_effect();
+        file << "\\\\\\" << '"' << "}";
+    }
+    file << "}\\" << '"' << "\\r\\n\\r\\n-- "; 
+
+    std::ifstream part2("part2.json");
+    file << part2.rdbuf();
+    part2.close();
+
+    file.close();
 }

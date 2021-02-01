@@ -1,24 +1,13 @@
 #include "card.hpp"
 
-bool dirExists(const std::string& dirName_in)
-{
-  DWORD ftyp = GetFileAttributesA(dirName_in.c_str());
-  if (ftyp == INVALID_FILE_ATTRIBUTES)
-    return false;  //something is wrong with your path!
-
-  if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
-    return true;   // this is a directory!
-
-  return false;    // this is not a directory!
-}
 
 void Card::check_path(){
-    if(dirExists("traductions") == false)
-        CreateDirectoryA("traductions", NULL);
+    if(dirExists("translations") == false)
+        CreateDirectoryA("translations", NULL);
     int cnt=0;
     while(reference[cnt] != '\\')
         cnt++;
-    std::string dir_name = "traductions\\" + reference.substr(0,cnt);
+    std::string dir_name = "translations\\" + reference.substr(0,cnt);
     LPSTR lpstr_dir_name = const_cast<char *>(dir_name.c_str());
     if(dirExists(dir_name) == false)
         CreateDirectoryA(lpstr_dir_name, NULL);
@@ -42,7 +31,7 @@ void Card::to_file(std::string filename){
     file << traits << std::endl;
     file << image_name << std::endl;
     file << triggers << std::endl;
-    file << traduction_file_path << std::endl;
+    file << translation_file_path << std::endl;
     file << power << std::endl;
     file << cost << std::endl;
     file << level << std::endl;
@@ -53,14 +42,14 @@ void Card::to_file(std::string filename){
 
 void Card::to_file_ref(){
     check_path();
-    to_file(traduction_file_path);
+    to_file(translation_file_path);
 }
 
-void Card::from_traduction_file(std::string filename){
+void Card::from_translation_file(std::string filename){
     try{
         std::ifstream file;
         file.open(filename);
-        parse_traduction(std::move(file));
+        parse_translation(std::move(file));
         file.close();
     }
     catch(std::string error){
@@ -69,7 +58,7 @@ void Card::from_traduction_file(std::string filename){
     }
 }
 
-void Card::parse_traduction(std::ifstream&& file){
+void Card::parse_translation(std::ifstream&& file){
     std::string garbage;
     
     std::string temp_type;
@@ -134,13 +123,68 @@ void Card::parse_traduction(std::ifstream&& file){
     }
 
     std::replace(reference.begin(),reference.end(),'/','\\');
-    image_name = ".\\images\\" + reference + ".jpg";
-    traduction_file_path = ".\\traductions\\" + reference + ".txt";
+    image_name = ".\\images\\" + reference + ".png";
+    translation_file_path = ".\\translations\\" + reference + ".txt";
 }
 
 std::string Card::get_reference(){
     return reference;
 }
+
+std::string Card::get_name(){
+    return name;
+}
+
+std::string Card::get_effect(){
+    return effect;
+}
+
+int Card::get_soul(){
+    return soul;
+}
+
+int Card::get_power(){
+    return power;
+}
+
+int Card::get_cost(){
+    return cost;
+}
+
+int Card::get_level(){
+    return level;
+}
+
+std::string Card::get_traits(){
+    return traits;
+}
+
+std::string Card::get_type(){
+    return type;
+}
+
+void Card::reference_slash(){
+    std::replace(reference.begin(),reference.end(),'\\','/');
+}
+
+void Card::effect_line_break(){
+    std::string garbage;
+    effect.erase(std::remove(effect.begin(),effect.end(), '"'), effect.end());
+    int pos = 1;
+    pos = effect.find("[A",pos);
+    while (pos != -1){
+        effect = effect.substr(1,pos-1) + "\\\\\\\\n" + effect.substr(pos,effect.length());
+        pos = pos + 7;
+        pos = effect.find("[",pos);
+    }
+    pos = 1;
+    pos = effect.find("[C",pos);
+    while (pos != -1){
+        effect = effect.substr(1,pos-1) + "\\\\\\\\n" + effect.substr(pos,effect.length());
+        pos = pos + 7;
+        pos = effect.find("[",pos);
+    }
+};
 
 void parse_hotc_file(std::string filename){
     std::ifstream file;
@@ -148,7 +192,7 @@ void parse_hotc_file(std::string filename){
     while(true){
         try{
             Card temp_card;
-            temp_card.parse_traduction(std::move(file));
+            temp_card.parse_translation(std::move(file));
             temp_card.to_file_ref();
         }
         catch(std::string exception){

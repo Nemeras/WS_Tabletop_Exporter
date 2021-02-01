@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
+#include "CImg.h"
 #include "card.hpp"
+#include <unordered_map>
 
 class Deck {
     protected :
@@ -10,6 +12,7 @@ class Deck {
     public :
         void generate_image(std::string output_name);
         void add_card(Card card);
+        void generate_json(std::string name);
 
         Deck(std::string filename){
             std::ifstream file;
