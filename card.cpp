@@ -58,6 +58,20 @@ void Card::from_translation_file(std::string filename){
     }
 }
 
+void findAndReplaceAll(std::string & data, std::string toSearch, std::string replaceStr)
+{
+    // Get the first occurrence
+    size_t pos = data.find(toSearch);
+    // Repeat till end is reached
+    while( pos != std::string::npos)
+    {
+        // Replace this occurrence of Sub String
+        data.replace(pos, toSearch.size(), replaceStr);
+        // Get the next occurrence from the current position
+        pos =data.find(toSearch, pos + replaceStr.size());
+    }
+}
+
 void Card::parse_translation(std::ifstream&& file){
     std::string garbage;
     
@@ -104,6 +118,7 @@ void Card::parse_translation(std::ifstream&& file){
     if(effect[0] == ' ')
         effect.erase(effect.begin(),effect.begin()+1);
 
+
     if(triggers[0] == ' ')
         triggers.erase(triggers.begin(),triggers.begin()+1);
 
@@ -121,6 +136,10 @@ void Card::parse_translation(std::ifstream&& file){
         type = "EV";
         }
     }
+
+    findAndReplaceAll(effect,"[A]","[Auto]");
+    findAndReplaceAll(effect,"[S]","[Act]");
+    findAndReplaceAll(effect,"[C]","[Cont]");
 
     std::replace(reference.begin(),reference.end(),'/','\\');
     image_name = ".\\images\\" + reference + ".png";
@@ -170,19 +189,25 @@ void Card::reference_slash(){
 void Card::effect_line_break(){
     std::string garbage;
     effect.erase(std::remove(effect.begin(),effect.end(), '"'), effect.end());
-    int pos = 1;
-    pos = effect.find("[A",pos);
+    int pos = effect.find("[Auto]",5);
     while (pos != -1){
-        effect = effect.substr(1,pos-1) + "\\\\\\\\n" + effect.substr(pos,effect.length());
-        pos = pos + 7;
-        pos = effect.find("[",pos);
+        effect = effect.substr(0,pos-1) + "\\\\\\\\n" + effect.substr(pos,effect.length());
+        pos = effect.find("[Auto]",pos+8);
     }
-    pos = 1;
-    pos = effect.find("[C",pos);
+    pos = effect.find("[Cont]",5);
     while (pos != -1){
-        effect = effect.substr(1,pos-1) + "\\\\\\\\n" + effect.substr(pos,effect.length());
-        pos = pos + 7;
-        pos = effect.find("[",pos);
+        effect = effect.substr(0,pos-1) + "\\\\\\\\n" + effect.substr(pos,effect.length());
+        pos = effect.find("[Cont]",pos+8);
+    }
+    pos = effect.find("[Act]",5);
+    while (pos != -1){
+        effect = effect.substr(0,pos-1) + "\\\\\\\\n" + effect.substr(pos,effect.length());
+        pos = effect.find("[Act]",pos+8);
+    }
+    pos = effect.find("[-]", 5);
+    while (pos != -1){
+        effect = effect.substr(0,pos-1) + "\\\\\\\\n" + effect.substr(pos,effect.length());
+        pos = effect.find("[-]",pos+8);
     }
 };
 
