@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <sstream>
 #include <curl/curl.h>
-#include <curl/easy.h>
+//#include <curl/easy.h>
 
 void download_image(std::string url);
 

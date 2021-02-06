@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <iostream>
 #include <stdio.h> 
+
 #include "CImg.h"
 #include "convert.hpp"
 #include "deck.hpp"
@@ -13,6 +14,10 @@ using namespace popl;
 int main(int argc, char* argv[]){
     std::cout << "test !" << std::endl;
     std::cout << "Hello world" << std::endl;
+    /*CImg<unsigned char> test1("W83-001.png");
+    test1.display();
+    CImg<unsigned char> image("Kaleidoscope.jpg");
+    image.display();*/
 
     OptionParser op("Allowed options");
     auto deck_creating_option = op.add<Value<std::string>>("g", "generate", "generate a deck from a text file");

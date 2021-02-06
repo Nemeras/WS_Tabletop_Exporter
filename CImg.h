@@ -53,6 +53,9 @@
 */
 
 // Set version number of the library.
+#define cimg_use_jpeg
+#define cimg_use_png
+
 #ifndef cimg_version
 #define cimg_version 295
 
@@ -445,6 +448,7 @@ enum {FALSE_WIN = 0};
 //
 // PNG library may be used to get a native support of '.png' files.
 // (see methods 'CImg<T>::{load,save}_png()'.
+#define cimg_use_png
 #ifdef cimg_use_png
 extern "C" {
 #include "png.h"

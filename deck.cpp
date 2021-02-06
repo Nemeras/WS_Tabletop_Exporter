@@ -1,6 +1,8 @@
+#define _CRT_SECURE_NO_DEPRECATE
 #include "convert.hpp"
 #include "deck.hpp"
 #include <windows.h>
+#include <curl/curl.h>
 
 using namespace cimg_library; 
 
@@ -17,19 +19,18 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     return written;
 }
 
-void download_image(std::string url){
+void download_image(std::string url,std::string filename){
     CURL *curl;
     FILE *fp;
     CURLcode res;
-    char outfilename[FILENAME_MAX] = "test.jpg";
     curl = curl_easy_init();
     if (curl) {
-        fp = fopen(outfilename,"wb");
+        fp = fopen(filename.c_str(),"wb");
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
         res = curl_easy_perform(curl);
-        /* always cleanup */
+        // always cleanup 
         curl_easy_cleanup(curl);
         fclose(fp);
     }
@@ -59,29 +60,21 @@ void Deck::generate_image(std::string output_name){
 
     for(auto& v : cards_tbl){
         CImg<unsigned char> card_row;
-        for(Card& c : v){
-            if (!fileExists(c.get_image_name())){
+        for (Card& c : v) {
+            if (!fileExists(c.get_image_name())) {
                 std::cout << "I don't have an image for " << c.get_reference() << " !" << std::endl;
-                std::cout << "Do you want to add an image file ? [Y/N]" << std::endl;
-                std::string answer;
-                std::cin >> answer;
-                if (answer.find("Y") != std::string::npos){
-                    std::string url;
-                    std::cin >> url;
-                    download_image(url);
-                    /*int pos = 0;
-                    while(true){
-                        int temp_pos = url.find(".",pos);
-                        if (temp_pos == -1)
-                            break;
-                        pos = temp_pos;
-                    }
-                    std::string temp_filename = "temp" + url.substr(pos,url.length()-1);*/
-
-
-                }
-
+                std::cout << "URL for an image ?" << std::endl;
+                std::string url;
+                std::cin >> url;
+                int pos = url.find_last_of(".");
+                std::string extension = url.substr(pos);
+                std::string temp_filename = "temp" + extension;
+                std::cout << "Downloading " << temp_filename << std::endl;
+                download_image(url, temp_filename);
+                add_image(temp_filename, c.get_reference());
+                //remove(temp_filename.c_str());
             }
+        
             std::cout << "Adding " << c.get_reference() << std::endl;
             std::string image_name = c.get_image_name();
             CImg<unsigned char> card_image(image_name.c_str());

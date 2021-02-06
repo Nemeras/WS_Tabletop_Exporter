@@ -2,6 +2,8 @@
 
 using namespace cimg_library; 
 
+#define F_OK 0
+
 bool dirExists(const std::string& dirName_in){
   DWORD ftyp = GetFileAttributesA(dirName_in.c_str());
   if (ftyp == INVALID_FILE_ATTRIBUTES)
