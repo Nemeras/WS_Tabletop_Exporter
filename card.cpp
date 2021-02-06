@@ -111,6 +111,11 @@ void Card::parse_translation(std::ifstream&& file){
     std::getline(file,garbage,':');
     std::getline(file,garbage,':');
     std::getline(file,effect,'=');
+    while (file.peek() != '='){
+        std::string temp;
+        std::getline(file,temp,'=');
+        effect = effect + '=' + temp;
+    }
 
     if(traits[0] == ' ')
         traits.erase(traits.begin(),traits.begin()+1);

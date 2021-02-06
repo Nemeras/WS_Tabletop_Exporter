@@ -6,4 +6,5 @@
 #include <algorithm>
 
 bool dirExists(const std::string& dirName_in);
+bool fileExists(const std::string& fileName_in);
 void add_image(std::string image_filename, std::string reference);

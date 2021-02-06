@@ -1,10 +1,38 @@
 #include "convert.hpp"
 #include "deck.hpp"
+#include <windows.h>
 
 using namespace cimg_library; 
 
 void Deck::add_card(Card card){
     cards.push_back(card);
+}
+
+void Deck::add_card(Card card, int number){
+    for (int i = 1; i <= number; i++)
+        cards.push_back(card);
+}
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+    size_t written = fwrite(ptr, size, nmemb, stream);
+    return written;
+}
+
+void download_image(std::string url){
+    CURL *curl;
+    FILE *fp;
+    CURLcode res;
+    char outfilename[FILENAME_MAX] = "test.jpg";
+    curl = curl_easy_init();
+    if (curl) {
+        fp = fopen(outfilename,"wb");
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        res = curl_easy_perform(curl);
+        /* always cleanup */
+        curl_easy_cleanup(curl);
+        fclose(fp);
+    }
 }
 
 void Deck::generate_image(std::string output_name){
@@ -32,20 +60,44 @@ void Deck::generate_image(std::string output_name){
     for(auto& v : cards_tbl){
         CImg<unsigned char> card_row;
         for(Card& c : v){
+            if (!fileExists(c.get_image_name())){
+                std::cout << "I don't have an image for " << c.get_reference() << " !" << std::endl;
+                std::cout << "Do you want to add an image file ? [Y/N]" << std::endl;
+                std::string answer;
+                std::cin >> answer;
+                if (answer.find("Y") != std::string::npos){
+                    std::string url;
+                    std::cin >> url;
+                    download_image(url);
+                    /*int pos = 0;
+                    while(true){
+                        int temp_pos = url.find(".",pos);
+                        if (temp_pos == -1)
+                            break;
+                        pos = temp_pos;
+                    }
+                    std::string temp_filename = "temp" + url.substr(pos,url.length()-1);*/
+
+
+                }
+
+            }
+            std::cout << "Adding " << c.get_reference() << std::endl;
             std::string image_name = c.get_image_name();
             CImg<unsigned char> card_image(image_name.c_str());
+
             card_row.append(card_image,'x');
-        } //creating the deck image, one row at a time.
-        deck_image.append(card_row,'y');
+        } 
+        deck_image.append(card_row,'y'); //creating the deck image, one row at a time.
     }
 
     deck_image.save("temp.png"); //I need to use a temporary png file because CImg doesn't seem to like saving jpgs.
-    convert_to_jpg("temp.png", output_name+".jpg"); //Using GDI+ to convert the temporary file.
-    remove( "temp.png");
+    convert_to_jpg("temp.png", "Export\\" + output_name+".jpg"); //Using GDI+ to convert the temporary file.
+    remove("temp.png");
 }
 
 void Deck::generate_json(std::string name){
-    std::string filename = name + ".json";
+    std::string filename = "Export\\" + name + ".json";
     std::ofstream file(filename.c_str());
     bool fst = true;
     std::ifstream part1("part1.json");
@@ -88,4 +140,29 @@ void Deck::generate_json(std::string name){
     part2.close();
 
     file.close();
+}
+
+void Deck::import_encoredeck(std::string filename){
+    std::ifstream file(filename.c_str());
+    std::string garbage;
+    std::string card_reference;
+    std::string line;
+    std::getline(file,garbage);
+    std::getline(file,garbage);
+    int number;
+    while (std::getline(file,line)){
+        std::cout << line << std::endl;
+        if ((line.find("Climaxes") != std::string::npos) || (line.find("Events") != std::string::npos))
+            continue;
+        int pos = line.find('\t',0);
+        std::cout << line.substr(0,pos) << "#" << std::endl;
+        std::cout << line.substr(pos+1,pos+1) << "##" << std::endl;
+        card_reference = line.substr(0,pos);
+        number = std::stoi(line.substr(pos+1,pos+1));
+        std::cout << card_reference << " " << number << std::endl;
+        add_card(Card(card_reference), number);
+    }
+    file.close();
+    if (cards.size() != 50)
+        std::cout << "The deck doesn't have 50 cards !" << std::endl;
 }

@@ -4,6 +4,11 @@
 #include "CImg.h"
 #include "card.hpp"
 #include <unordered_map>
+#include <sstream>
+#include <curl/curl.h>
+#include <curl/easy.h>
+
+void download_image(std::string url);
 
 class Deck {
     protected :
@@ -12,7 +17,9 @@ class Deck {
     public :
         void generate_image(std::string output_name);
         void add_card(Card card);
+        void add_card(Card card, int number);
         void generate_json(std::string name);
+        void import_encoredeck(std::string name);
 
         Deck(std::string filename){
             std::ifstream file;
@@ -25,6 +32,9 @@ class Deck {
                 }
                 add_card(Card(card_name));
             }
+        }
+
+        Deck(){
         }
 
 };
