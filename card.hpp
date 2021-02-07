@@ -53,7 +53,9 @@ class Card {
             std::ifstream file;
             file.open(filename);
             if (file.is_open() == false){
-                std::cout << "FILE NOT OPENED (card declaration)" << std::endl;
+                std::string error = "I don't have the translation  " + filename;
+                std::cout << error << std::endl;
+                throw error;
                 return;
             }
             std::getline(file,name,'\n');

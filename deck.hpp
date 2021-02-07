@@ -5,10 +5,10 @@
 #include "card.hpp"
 #include <unordered_map>
 #include <sstream>
+#include <string>
 #include <curl/curl.h>
-//#include <curl/easy.h>
 
-void download_image(std::string url);
+void download_image(std::string url, std::string filename);
 
 class Deck {
     protected :
@@ -19,6 +19,7 @@ class Deck {
         void add_card(Card card);
         void add_card(Card card, int number);
         void generate_json(std::string name);
+        void generate_deck_json(std::string deck_name, std::string cards_url, std::string sleeves_url);
         void import_encoredeck(std::string name);
 
         Deck(std::string filename){

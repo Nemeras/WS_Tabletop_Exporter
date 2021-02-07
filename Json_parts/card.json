@@ -1,0 +1,52 @@
+{
+    "GUID": "#GUID#",
+    "Name": "Card",
+    "Transform": {
+      "posX": -0.008433106,
+      "posY": 1.94194758,
+      "posZ": -3.16501832,
+      "rotX": -1.619712E-05,
+      "rotY": 180.0,
+      "rotZ": 180.0,
+      "scaleX": 1.0,
+      "scaleY": 1.0,
+      "scaleZ": 1.0
+    },
+    "Nickname": "#NAME# [#REFERENCE#]",
+    "Description": "Type: #TYPE#\nTraits: #TRAITS# \nP/S: #POWER#P/#SOUL#S || Lv/Co: #LEVEL#/#COST#\nEffect: #EFFECT# ",
+    "GMNotes": "",
+    "ColorDiffuse": {
+      "r": 0.713235259,
+      "g": 0.713235259,
+      "b": 0.713235259
+    },
+    "LayoutGroupSortIndex": 0,
+    "Locked": false,
+    "Grid": true,
+    "Snap": true,
+    "IgnoreFoW": false,
+    "MeasureMovement": false,
+    "DragSelectable": true,
+    "Autoraise": true,
+    "Sticky": true,
+    "Tooltip": true,
+    "GridProjection": false,
+    "HideWhenFaceDown": true,
+    "Hands": true,
+    "CardID": #CARDID#,
+    "SidewaysCard": false,
+    "CustomDeck": {
+      "1": {
+        "FaceURL": "#CARDSURL#",
+        "BackURL": "#SLEEVESURL#",
+        "NumWidth": 10,
+        "NumHeight": 5,
+        "BackIsHidden": true,
+        "UniqueBack": false,
+        "Type": 0
+      }
+    },
+    "LuaScript": "",
+    "LuaScriptState": "",
+    "XmlUI": ""
+  }

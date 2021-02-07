@@ -21,7 +21,8 @@ void Card::to_file(std::string filename){
     std::ofstream file;
     file.open(filename);
     if(file.is_open() == false){
-        std::cout << "FILE IS NOT OPENED" << std::endl;
+        std::string error = "FILE IS NOT OPENED " + filename;
+        throw error;
         return;
     }
     file << name << std::endl;

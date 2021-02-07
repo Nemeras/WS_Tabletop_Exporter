@@ -72,7 +72,7 @@ void Deck::generate_image(std::string output_name){
                 std::cout << "Downloading " << temp_filename << std::endl;
                 download_image(url, temp_filename);
                 add_image(temp_filename, c.get_reference());
-                //remove(temp_filename.c_str());
+                remove(temp_filename.c_str());
             }
         
             std::cout << "Adding " << c.get_reference() << std::endl;
@@ -85,7 +85,7 @@ void Deck::generate_image(std::string output_name){
     }
 
     deck_image.save("temp.png"); //I need to use a temporary png file because CImg doesn't seem to like saving jpgs.
-    convert_to_jpg("temp.png", "Export\\" + output_name+".jpg"); //Using GDI+ to convert the temporary file.
+    convert_to_jpg("temp.png", "Export\\" + output_name + ".jpg"); //Using GDI+ to convert the temporary file.
     remove("temp.png");
 }
 
@@ -158,4 +158,80 @@ void Deck::import_encoredeck(std::string filename){
     file.close();
     if (cards.size() != 50)
         std::cout << "The deck doesn't have 50 cards !" << std::endl;
+}
+
+bool replace(std::string& str, const std::string& from, const std::string& to) {
+    size_t start_pos = str.find(from);
+    if (start_pos == std::string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
+void replace_all(std::string& str, const std::string& from, const std::string& to) {
+    if (from.empty())
+        return;
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    }
+}
+
+int rand_163() {
+    int a = rand() % 4096;
+    int b = rand() % 4096;
+    int c = rand() % 4096;
+    int d = rand() % 4096;
+    return ((a * 16 * 16 * 15) + (b * 16 * 15) + (c * 15) + d);
+}
+
+void Deck::generate_deck_json(std::string deck_name, std::string cards_url, std::string sleeves_url){
+    std::string filename = deck_name + ".json";
+    std::ofstream out(filename.c_str());
+    std::ifstream part1_file("Json_parts\\part_1.json");
+    std::string part1((std::istreambuf_iterator<char>(part1_file)), std::istreambuf_iterator<char>());
+    part1_file.close(); 
+    replace(part1, "#CARDSURL#", cards_url.c_str());
+    replace(part1, "#SLEEVESURL#", sleeves_url.c_str());
+    out << part1 << std::endl;
+    bool fst = true;
+    int cardid = 100;
+    for (auto &c : cards) {
+        if (fst) {
+            fst = false;
+        } else {
+            out << "," << std::endl;
+        }
+        std::ifstream card_file("Json_parts\\card.json");
+        std::string card_json_string((std::istreambuf_iterator<char>(card_file)), std::istreambuf_iterator<char>());
+        card_file.close();
+        char random_hex[64];
+        std::sprintf(random_hex, "%x", rand_163());
+        std::string random_hex_string = random_hex;
+        std::string reference = c.get_reference();
+        replace(reference, "\\", "/");
+        replace(card_json_string, "#GUID#", random_hex_string);
+        replace(card_json_string, "#NAME#", c.get_name());
+        replace(card_json_string, "#REFERENCE#", reference);
+        replace(card_json_string, "#TYPE#", c.get_type());
+        replace(card_json_string, "#TRAITS#", c.get_traits());
+        replace(card_json_string, "#POWER#", std::to_string(c.get_power()));
+        replace(card_json_string, "#SOUL#", std::to_string(c.get_soul()));
+        replace(card_json_string, "#LEVEL#", std::to_string(c.get_level()));
+        replace(card_json_string, "#COST#", std::to_string(c.get_cost()));
+        std::string effect = c.get_effect();
+        replace_all(effect, "\"", "");
+        replace_all(effect, "[Cont]", "\\n[CONT]");
+        replace_all(effect, "[Auto]", "\\n[AUTO]");
+        replace_all(effect, "[Aact]", "\\n[ACT]");
+        replace(card_json_string, "#EFFECT#", effect);
+        replace(card_json_string, "#CARDSURL#", cards_url.c_str());
+        replace(card_json_string, "#SLEEVESURL#", sleeves_url.c_str());
+        replace(card_json_string, "#CARDID#", std::to_string(cardid));
+        cardid++;
+        out << card_json_string;
+    }
+    out << std::endl << "           ]" << std::endl << "        }" << std::endl << "    ]" << std::endl << "}";
+    out.close();
 }
