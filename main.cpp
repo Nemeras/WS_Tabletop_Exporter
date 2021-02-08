@@ -138,7 +138,7 @@ int main(int argc, char* argv[]){
         CopyFile("sleeves.png", out_path_logo.c_str(), TRUE);
         remove(sleeves_filename.c_str());
         remove(file_path.c_str());
+        remove("sleeves.png");
     }
-    
     return 1;
 }

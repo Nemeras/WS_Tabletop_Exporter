@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include "convert.hpp"
+#include "convert.hpp"
 #include "deck.hpp"
 #include <windows.h>
 #include <curl/curl.h>
@@ -68,9 +69,16 @@ void Deck::generate_image(std::string output_name){
                 std::cin >> url;
                 int pos = url.find_last_of(".");
                 std::string extension = url.substr(pos);
+                pos = extension.find("g");
+                extension = extension.substr(0, pos);
                 std::string temp_filename = "temp" + extension;
                 std::cout << "Downloading " << temp_filename << std::endl;
                 download_image(url, temp_filename);
+                pos = (c.get_reference()).find("\\");
+                std::string set_folder_name = "images\\" + (c.get_reference()).substr(0, pos);
+                LPSTR lpstr_dir_name = const_cast<char*>(set_folder_name.c_str());
+                if (!dirExists(lpstr_dir_name))
+                    CreateDirectoryA(lpstr_dir_name, NULL); 
                 add_image(temp_filename, c.get_reference());
                 remove(temp_filename.c_str());
             }
